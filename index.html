@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>游戏数据统计系统</title>
+  <title>数据统计</title>
   <!-- Vue2 -->
-  <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+  <script src="./static/vue.js"></script>
   <!-- Element UI -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/theme-chalk/index.css">
-  <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/index.js"></script>
+  <link rel="stylesheet" href="./static/element.css">
+  <script src="./static/element.js"></script>
   <script src="./gameConfig.js"></script>
   <script src="./gameMethods.js"></script>
   <!-- 游戏风格字体 -->
@@ -23,13 +23,14 @@
     <!-- 游戏规则弹窗 -->
     <div class="rule-modal" v-if="showRule">
       <h3 class="rule-title">🎮 游戏数据统计规则</h3>
-      <div class="rule-content">
-        <p>1. 共记录6把游戏的带出物品和金额数据</p>
-        <p>2. 每把游戏可记录多种物品的带出数量</p>
-        <p>3. 填写完成后点击"保存当前局"按钮提交数据</p>
-        <p>4. 系统会自动检测是否满足彩蛋条件</p>
-        <p>5. 彩蛋触发时会有掉落动画提示</p>
-        <p>6. 所有数据实时统计，可在页面下方查看汇总结果</p>
+      <div class="rule-content" style="height: 70vh;overflow: auto;">
+        <div v-for="ruleItem in rewordData" :key="ruleItem.name">
+          <div style="text-align: center;">【{{ruleItem.name}}】</div>
+          <div  style="text-align: center;position: relative;top: -4px">
+            <span style="color: rgba(10, 250, 202, 0.5);">{{ruleItem.tip}}</span>
+            <span style="margin-left: 4px">奖励 <span style="color: rgba(10, 250, 202, 0.5);font-size: 20px">{{ruleItem.count || ruleItem.value}}</span> 把</span>
+          </div>
+        </div>
       </div>
       <!-- 优化关闭按钮 -->
       <el-button 
@@ -44,12 +45,7 @@
     
     <!-- 进度指示器 -->
     <div class="progress-indicator" v-if="!showRule">
-      <div class="progress-dot" :class="{active: gameIndex === 0}"></div>
-      <div class="progress-dot" :class="{active: gameIndex === 1}"></div>
-      <div class="progress-dot" :class="{active: gameIndex === 2}"></div>
-      <div class="progress-dot" :class="{active: gameIndex === 3}"></div>
-      <div class="progress-dot" :class="{active: gameIndex === 4}"></div>
-      <div class="progress-dot" :class="{active: gameIndex === 5}"></div>
+      <div class="progress-dot" v-for="item in defaultSize" :class="{active: gameIndex === item-1}"></div>
     </div>
     
     <!-- 游戏数据录入卡片 -->
@@ -58,72 +54,38 @@
         <h3 class="game-card-title">第 {{ gameIndex + 1 }} 局游戏数据</h3>
         <el-button type="text" @click="showRule = true" style="color: #00ccff;">查看规则</el-button>
       </div>
-      
+
+      <div class="item-list-box">      
       <div class="item-list">
-        <div class="item-row">
-          <label class="item-label">黄金钥匙：</label>
-          <el-input 
-            v-model="currentGame.goldenKey" 
-            type="number" 
-            min="0" 
+        <div class="item-list-title">回收物数据</div>
+        <div class="item-row" v-for="item in goodsData" :key="item.value">
+          <label class="item-label">{{item.name}}：</label>
+          <el-input-number
+            v-model="allGameData[gameIndex][item.value]" 
+            :min="0"
+            :max="6"
             class="item-input"
             placeholder="输入数量"
-          ></el-input>
+          ></el-input-number>
+          <span>个</span>
         </div>
-        
+        <div class="item-list-title">其他数据</div>
         <div class="item-row">
-          <label class="item-label">钻石：</label>
-          <el-input 
-            v-model="currentGame.diamond" 
-            type="number" 
-            min="0" 
-            class="item-input"
-            placeholder="输入数量"
-          ></el-input>
+          <label class="item-label">是否有宝藏房：</label>
+          <el-checkbox v-model="allGameData[gameIndex].hasBz"></el-checkbox>
         </div>
-        
-        <div class="item-row">
-          <label class="item-label">稀有装备：</label>
-          <el-input 
-            v-model="currentGame.rareEquipment" 
-            type="number" 
-            min="0" 
-            class="item-input"
-            placeholder="输入数量"
-          ></el-input>
-        </div>
-        
-        <div class="item-row">
-          <label class="item-label">能量核心：</label>
-          <el-input 
-            v-model="currentGame.energyCore" 
-            type="number" 
-            min="0" 
-            class="item-input"
-            placeholder="输入数量"
-          ></el-input>
-        </div>
-        
         <div class="item-row">
           <label class="item-label">带出金额：</label>
-          <el-input 
-            v-model="currentGame.money" 
-            type="number" 
-            min="0" 
+          <el-input-number
+            v-model="allGameData[gameIndex].money" 
+            :min="0"
+            :max="500"
             class="item-input"
             placeholder="输入金额"
-          ></el-input>
+          ></el-input-number>
+          <span>万</span>
         </div>
-        
-        <div class="item-row">
-          <label class="item-label">其他物品：</label>
-          <el-input 
-            v-model="currentGame.otherItems" 
-            type="text" 
-            class="item-input"
-            placeholder="可输入其他物品"
-          ></el-input>
-        </div>
+      </div>
       </div>
       
       <div class="btn-group">
@@ -134,49 +96,64 @@
         >
           上一局
         </el-button>
-        <el-button 
+        <!-- <el-button 
           type="success" 
           @click="saveCurrentGame"
         >
           保存当前局
-        </el-button>
+        </el-button> -->
         <el-button 
           type="primary" 
           @click="nextGame" 
-          :disabled="gameIndex === 5"
+          :disabled="gameIndex === defaultSize-1"
         >
           下一局
         </el-button>
       </div>
     </div>
+
+    <div>
+      <el-button 
+      @click="resetData"
+          type="primary" 
+        >
+          重置
+        </el-button>
+        <el-button 
+          type="primary" 
+          @click="viewData" 
+        >
+          查看当前统计数据
+        </el-button>
+        <el-button 
+          type="primary" 
+          @click="getReword"
+        >
+          结算奖励
+        </el-button>
+    </div>
     
-    <!-- 统计结果区域 -->
-    <div class="stats-section" v-if="!showRule && gameData.some(item => item.saved)">
-      <h3 class="stats-title">📊 统计汇总</h3>
-      <div class="stats-item">
-        <span class="stats-label">已完成局数：</span>
-        <span class="stats-value">{{ completedGames }} / 6</span>
+    <!-- 游戏规则弹窗 -->
+    <div class="rule-modal" v-if="showData">
+      <h3 class="rule-title">🎮 游戏数据统计</h3>
+      <div class="rule-content" style="height: 70vh;overflow: auto;">
+        <div v-for="ruleItem in rewordData" :key="ruleItem.name">
+          <div style="text-align: center;">【{{ruleItem.name}}】</div>
+          <div  style="text-align: center;position: relative;top: -4px">
+            <span style="color: rgba(10, 250, 202, 0.5);">{{ruleItem.tip}}</span>
+            <span style="margin-left: 4px">奖励 <span style="color: rgba(10, 250, 202, 0.5);font-size: 20px">{{ruleItem.count || ruleItem.value}}</span> 把</span>
+          </div>
+          <div class="rule-data" style="text-align: center;color: rgba(0, 193, 154, 0.5)" v-if="ruleItem.show" v-html="ruleItem.show(gameData)"></div>
+        </div>
       </div>
-      <div class="stats-item">
-        <span class="stats-label">总黄金钥匙：</span>
-        <span class="stats-value">{{ totalGoldenKey }}</span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">总钻石：</span>
-        <span class="stats-value">{{ totalDiamond }}</span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">总稀有装备：</span>
-        <span class="stats-value">{{ totalRareEquipment }}</span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">总带出金额：</span>
-        <span class="stats-value">{{ totalMoney }} 金币</span>
-      </div>
-      <div class="stats-item">
-        <span class="stats-label">触发彩蛋数：</span>
-        <span class="stats-value">{{ totalEggs }}</span>
-      </div>
+      <!-- 优化关闭按钮 -->
+      <el-button 
+        type="success" 
+        @click="showData = false" 
+        class="close-btn"
+      >
+        知道了
+      </el-button>
     </div>
     
     <!-- 彩蛋动画容器 -->
@@ -190,35 +167,8 @@
         el: '#app',
         data() {
           return {
-            count: 0 // 页面数据仍在 Vue 实例中
-          };
-        },
-        computed: {
-          ...window.Game.computed
-        },
-        methods: {
-          ...window.Game.methods
-        }
-      });
-    });
-  </script>
-
-  <!-- <script>
-    new Vue({
-      el: '#app',
-      data() {
-        return {
           showRule: true, // 是否显示游戏规则
           gameIndex: 0, // 当前游戏局数索引（0-5）
-          // 游戏数据结构
-          gameData: [
-            { goldenKey: 0, diamond: 0, rareEquipment: 0, energyCore: 0, money: 0, otherItems: '', saved: false },
-            { goldenKey: 0, diamond: 0, rareEquipment: 0, energyCore: 0, money: 0, otherItems: '', saved: false },
-            { goldenKey: 0, diamond: 0, rareEquipment: 0, energyCore: 0, money: 0, otherItems: '', saved: false },
-            { goldenKey: 0, diamond: 0, rareEquipment: 0, energyCore: 0, money: 0, otherItems: '', saved: false },
-            { goldenKey: 0, diamond: 0, rareEquipment: 0, energyCore: 0, money: 0, otherItems: '', saved: false },
-            { goldenKey: 0, diamond: 0, rareEquipment: 0, energyCore: 0, money: 0, otherItems: '', saved: false }
-          ],
           totalEggs: 0, // 总触发彩蛋数
           // 彩蛋规则配置
           eggRules: [
@@ -252,97 +202,37 @@
               condition: (game) => game.goldenKey >= 3 && game.diamond >= 5 && game.rareEquipment >= 2,
               description: "单局集齐多种稀有物品！"
             }
-          ]
-        };
-      },
-      computed: {
-        // 当前游戏数据
-        currentGame() {
-          return this.gameData[this.gameIndex];
+          ],
+          allGameData: [],
+          // 最多八局 
+          defaultSize: 8,
+          goodsData: window.GAME_CONFIG.goodsData,
+          rewordData: window.GAME_CONFIG.rewordData,
+          showData: false,
+          gameData: {}
+          };
         },
-        // 已完成局数
-        completedGames() {
-          return this.gameData.filter(game => game.saved).length;
+        computed: {
+          ...window.Game.computed
         },
-        // 总黄金钥匙
-        totalGoldenKey() {
-          return this.gameData.reduce((total, game) => total + Number(game.goldenKey || 0), 0);
+        methods: {
+          ...window.Game.methods
         },
-        // 总钻石
-        totalDiamond() {
-          return this.gameData.reduce((total, game) => total + Number(game.diamond || 0), 0);
-        },
-        // 总稀有装备
-        totalRareEquipment() {
-          return this.gameData.reduce((total, game) => total + Number(game.rareEquipment || 0), 0);
-        },
-        // 总带出金额
-        totalMoney() {
-          return this.gameData.reduce((total, game) => total + Number(game.money || 0), 0);
-        }
-      },
-      methods: {
-        // 保存当前局数据
-        saveCurrentGame() {
-          this.gameData[this.gameIndex].saved = true;
-          
-          // 检测彩蛋
-          this.checkEggs();
-          
-          // 提示保存成功
-          this.$message.success(`第 ${this.gameIndex + 1} 局数据保存成功！`);
-        },
-        // 上一局
-        prevGame() {
-          if (this.gameIndex > 0) {
-            this.gameIndex--;
+        created() {
+          for(let i=0;i<8;i++){
+            const params= {
+              hasBz: false,
+              money: 0
+            }
+            this.goodsData.forEach(item=>{
+              params[item.value] = 0
+            })
+            this.allGameData.push({...params})
           }
         },
-        // 下一局
-        nextGame() {
-          if (this.gameIndex < 5) {
-            this.gameIndex++;
-          }
-        },
-        // 检测彩蛋
-        checkEggs() {
-          const currentGame = this.currentGame;
-          const triggeredEggs = this.eggRules.filter(rule => rule.condition(currentGame));
-          
-          if (triggeredEggs.length > 0) {
-            this.totalEggs += triggeredEggs.length;
-            // 显示彩蛋动画
-            triggeredEggs.forEach(egg => {
-              this.showEggAnimation(egg);
-            });
-          }
-        },
-        // 显示彩蛋动画
-        showEggAnimation(egg) {
-          const eggContainer = this.$refs.eggContainer;
-          
-          // 创建彩蛋元素
-          const eggElement = document.createElement('div');
-          eggElement.className = 'egg';
-          // 随机位置
-          eggElement.style.left = `${Math.random() * 80 + 10}%`;
-          eggContainer.appendChild(eggElement);
-          
-          // 创建彩蛋提示
-          const toastElement = document.createElement('div');
-          toastElement.className = 'egg-toast';
-          toastElement.innerHTML = `<strong>🎉 ${egg.name} 🎉</strong><br>${egg.description}`;
-          toastElement.style.left = `${Math.random() * 70 + 15}%`;
-          eggContainer.appendChild(toastElement);
-          
-          // 动画结束后移除元素
-          setTimeout(() => {
-            eggElement.remove();
-            toastElement.remove();
-          }, 3000);
-        }
-      }
+      });
     });
-  </script> -->
+  </script>
+
 </body>
 </html>

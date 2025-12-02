@@ -148,6 +148,7 @@
       display: flex;
       gap: 10px;
       margin-top: 20px;
+      justify-content: center;
     }
     
     .el-button {
@@ -217,32 +218,31 @@
     }
     
     .egg-toast {
-      position: absolute;
+      position: fixed;
       background: rgba(255, 215, 0, 0.9);
       color: #333;
       padding: 15px 25px;
       border-radius: 50px;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 18px;
       text-align: center;
       box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
-      animation: eggToast 3s ease-in-out forwards;
-      opacity: 0;
+      animation: eggToast 1s ease-in-out;
+      opacity: 1;
       z-index: 1000;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
     
     @keyframes eggToast {
       0% {
-        transform: translateY(-50px) scale(0.5);
+        transform: translate(-50%, -100%) scale(0.5);
         opacity: 0;
-      }
-      50% {
-        transform: translateY(100px) scale(1.2);
-        opacity: 1;
       }
       100% {
-        transform: translateY(150px) scale(1);
-        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
       }
     }
     
@@ -332,3 +332,18 @@
         line-height: 1.6;
       }
     }
+
+.item-list-box{
+  height: calc(100vh - 300px);
+  overflow: auto;
+}
+.item-list-title{
+  font-size: 20px;
+  font-weight: bold;
+  color: #0077cc;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.rule-data > span{
+  color: red
+}
