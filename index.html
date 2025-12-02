@@ -65,6 +65,7 @@
             :min="0"
             :max="6"
             class="item-input"
+            style="width: calc(100vw - 100px)"
             placeholder="输入数量"
           ></el-input-number>
           <span>个</span>
@@ -112,7 +113,7 @@
       </div>
     </div>
 
-    <div>
+    <div style="text-align: center;">
       <el-button 
       @click="resetData"
           type="primary" 
@@ -158,6 +159,9 @@
     
     <!-- 彩蛋动画容器 -->
     <div class="egg-container" ref="eggContainer"></div>
+    <div class="close-btn2" v-if="showReword" @click="close">
+      <i class="el-icon-close"></i>
+    </div>
   </div>
 
   <script>
@@ -209,7 +213,9 @@
           goodsData: window.GAME_CONFIG.goodsData,
           rewordData: window.GAME_CONFIG.rewordData,
           showData: false,
-          gameData: {}
+          gameData: {},
+          showReword: false,
+          toastElement: false
           };
         },
         computed: {

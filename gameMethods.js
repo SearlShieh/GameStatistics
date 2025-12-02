@@ -40,14 +40,14 @@ window.Game = {
         },
         // 显示彩蛋动画
         getReword(egg) {
+          this.toastElement && this.toastElement.remove();
           let allCount = 0
           let fitData= []
-          const gameData = this.getGameData()
-          console.log(gameData)
           this.gameData = this.getGameData()
+          this.showData=true
           this.rewordData.forEach(item=>{
             if(item.condition){
-              if(item.condition(gameData)){
+              if(item.condition(this.gameData)){
                 allCount+=item.value
                 fitData.push({
                   ...item,
@@ -64,28 +64,19 @@ window.Game = {
               }
             }
           })
+          console.log(this.rewordData, allCount)
 
-          const eggContainer = this.$refs.eggContainer;
-          
-          // 创建彩蛋元素
-          const eggElement = document.createElement('div');
-          eggElement.className = 'egg';
-          // 随机位置
-          eggElement.style.left = `20px`;
-          eggContainer.appendChild(eggElement);
-          
+          const eggContainer = this.$refs.eggContainer;       
           // 创建彩蛋提示
           const toastElement = document.createElement('div');
           toastElement.className = 'egg-toast';
           toastElement.innerHTML = `<strong>🎉 恭喜板板 🎉</strong><br>奖励局数：${allCount}把`;
-          // toastElement.style.left = `20px`;
           eggContainer.appendChild(toastElement);
           
-          // 动画结束后移除元素
-          // setTimeout(() => {
-          //   eggElement.remove();
-          //   toastElement.remove();
-          // }, 3000);
+          this.toastElement=toastElement
+          setTimeout(()=>{
+            this.showReword=true
+          }, 1000)
         },
 
         getGameData(){
@@ -127,13 +118,17 @@ window.Game = {
           for(let i=0;i<8;i++){
             const params= {
               hasBz: false,
-              money: 15
+              money: 0
             }
             this.goodsData.forEach(item=>{
               params[item.value] = 0
             })
             this.allGameData.push({...params})
           }
+        },
+        close(){
+          this.showReword=false
+          this.toastElement.remove();
         }
   }
 }

@@ -16,35 +16,35 @@ window.GAME_CONFIG = {
   rewordData: [
     {
       name: '六六大顺', tip:'累计带出6朵雪莲和6个鬼玺', value: 6, condition: (game)=>{
-        game.xuelian>=6 && game.guixi>=6
+        return  game.xuelian>=6 && game.guixi>=6
       }, show: (game)=>{
         return `鬼玺：<span>${game.guixi}</span>，雪莲：<span>${game.xuelian}</span>`
       }
     },
     {
       name: '金樽当卢大法', tip:'累计带出10个金樽/当卢', value: 2, condition: (game)=>{
-        game.jinzun + game.danglu >= 10
+        return game.jinzun + game.danglu >= 10
       }, show: (game)=>{
         return `金樽：<span>${game.jinzun}</span>，青铜当卢：<span>${game.danglu}</span>`
       }
     },
     {
       name: '金鱼虎符万岁', tip:'累计带出10个金鱼/虎符', value: 2, condition: (game)=>{
-        game.jinyu + game.hufu >= 10
+        return game.jinyu + game.hufu >= 10
       }, show: (game)=>{
-        return `金鳞<span>${game.jinyu}</span>，虎符：<span>${game.hufu}</span>`
+        return `金鳞<span>${game.jinlin}</span>，虎符：<span>${game.hufu}</span>`
       }
     },
     {
       name: '拼凑碎片', tip:'累计带出6个壁画碎片', value: 2, condition: (game)=>{
-        game.suipian >= 6
+        return game.suipian >= 6
       }, show: (game)=>{
         return `壁画碎片：<span>${game.suipian}</span>`
       }
     },
     {
       name: '幽灵在哪里', tip:'累计带出6个幽灵小熊猫/土拨鼠', value: 2, condition: (game)=>{
-        game.youling >= 6
+        return game.youling >= 6
       }, show: (game)=>{
         return `幽灵小熊猫/土拨鼠：<span>${game.youling}</span>`
       }
@@ -86,7 +86,7 @@ window.GAME_CONFIG = {
     },
     {
       name: '五福临门', tip:'累计五把五十万撤离（50w-70w）', value :5, condition: (game)=>{
-        game.wsMoney >= 5
+        return game.wsMoney >= 5
       }, show: (game)=>{
         return `50万撤离：<span>${game.wsMoney}</span>`
       }
